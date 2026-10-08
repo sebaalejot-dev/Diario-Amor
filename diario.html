@@ -1,0 +1,1075 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Seba & Mary 🌙</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  :root {
+    --pink: #ff6fd8;
+    --purple: #9b5de5;
+    --dark: #0b0b1a;
+  }
+
+  body {
+    font-family: 'Courier New', monospace;
+    background: linear-gradient(135deg, #0b0b1a 0%, #1a1a3a 50%, #2b1b4d 100%);
+    min-height: 100vh;
+    color: white;
+    overflow-x: hidden;
+  }
+
+  .stars-layer {
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: 0;
+  }
+  .star {
+    position: absolute;
+    border-radius: 50%;
+    background: white;
+    animation: twinkle linear infinite;
+  }
+  @keyframes twinkle {
+    0%,100% { opacity: 0.15; transform: scale(1); }
+    50% { opacity: 0.9; transform: scale(1.5); }
+  }
+
+  .screen {
+    display: none;
+    min-height: 100vh;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    padding: 40px 20px;
+    position: relative;
+    z-index: 1;
+  }
+  .screen.active { display: flex; }
+
+  /* ---- LOGIN ---- */
+  .login-box {
+    background: rgba(20,10,40,0.88);
+    border: 1px solid #9b5de577;
+    border-radius: 24px;
+    padding: 40px 32px;
+    max-width: 360px;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 16px;
+    box-shadow: 0 0 40px #ff6fd822;
+    animation: fadeUp 0.6s ease;
+  }
+  @keyframes fadeUp {
+    from { opacity:0; transform:translateY(24px); }
+    to   { opacity:1; transform:translateY(0); }
+  }
+  .login-box h1 {
+    font-size: 1.5rem;
+    background: linear-gradient(90deg, var(--pink), #c77dff);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    text-align: center;
+  }
+  .login-box p { color: #c4b5fd; font-size: 0.85rem; text-align: center; }
+
+  .input {
+    padding: 11px 16px;
+    border-radius: 12px;
+    border: 1px solid #9b5de5;
+    background: rgba(255,255,255,0.05);
+    color: white;
+    font-size: 1rem;
+    font-family: 'Courier New', monospace;
+    width: 100%;
+    outline: none;
+    transition: border-color 0.3s, box-shadow 0.3s;
+  }
+  .input:focus { border-color: var(--pink); box-shadow: 0 0 15px #ff6fd833; }
+  .input.error { border-color: #f87171; animation: shake 0.4s ease; }
+  @keyframes shake {
+    0%,100%{transform:translateX(0);}
+    25%{transform:translateX(-8px);}
+    75%{transform:translateX(8px);}
+  }
+  .input-pass { letter-spacing: 4px; text-align: center; font-size: 1.1rem; }
+
+  .btn {
+    padding: 13px 24px;
+    background: linear-gradient(135deg, var(--pink), var(--purple));
+    border: none;
+    border-radius: 50px;
+    color: white;
+    cursor: pointer;
+    font-size: 0.95rem;
+    font-family: 'Courier New', monospace;
+    font-weight: bold;
+    letter-spacing: 1px;
+    box-shadow: 0 0 20px #ff6fd833;
+    transition: transform 0.2s, box-shadow 0.2s;
+    width: 100%;
+  }
+  .btn:hover { transform: scale(1.04); box-shadow: 0 0 35px #ff6fd8aa; }
+  .btn:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+
+  .error-msg { color: #f87171; font-size: 0.78rem; display: none; }
+
+  .who-btns { display: flex; gap: 10px; width: 100%; }
+  .who-btn {
+    flex: 1;
+    padding: 12px;
+    border-radius: 14px;
+    border: 1px solid #9b5de555;
+    background: transparent;
+    color: #c4b5fd;
+    cursor: pointer;
+    font-family: 'Courier New', monospace;
+    font-size: 0.9rem;
+    transition: all 0.2s;
+  }
+  .who-btn.selected { border-color: var(--pink); background: rgba(255,111,216,0.12); color: white; }
+
+  /* ---- HEADER ---- */
+  .header {
+    width: 100%;
+    padding: 16px 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid #ffffff11;
+    background: rgba(10,5,25,0.7);
+    backdrop-filter: blur(10px);
+    position: sticky;
+    top: 0;
+    z-index: 10;
+  }
+  .header-title {
+    font-size: 1rem;
+    background: linear-gradient(90deg, var(--pink), #c77dff);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    font-weight: bold;
+  }
+  .header-right { display: flex; gap: 8px; align-items: center; }
+  .header-who { font-size: 0.75rem; color: #9ca3af; }
+  .btn-small {
+    padding: 7px 14px;
+    background: linear-gradient(135deg, var(--pink), var(--purple));
+    border: none;
+    border-radius: 50px;
+    color: white;
+    cursor: pointer;
+    font-size: 0.76rem;
+    font-family: 'Courier New', monospace;
+    font-weight: bold;
+    box-shadow: 0 0 12px #ff6fd833;
+    transition: transform 0.2s, box-shadow 0.2s;
+  }
+  .btn-small:hover { transform: scale(1.05); box-shadow: 0 0 22px #ff6fd8aa; }
+  .btn-logout {
+    padding: 6px 12px;
+    background: transparent;
+    border: 1px solid #ffffff22;
+    border-radius: 50px;
+    color: #9ca3af;
+    cursor: pointer;
+    font-size: 0.72rem;
+    font-family: 'Courier New', monospace;
+    transition: border-color 0.2s, color 0.2s;
+  }
+  .btn-logout:hover { border-color: #f87171; color: #f87171; }
+
+  /* ---- TABS ---- */
+  .tabs {
+    display: flex;
+    gap: 0;
+    border-bottom: 1px solid #ffffff11;
+    width: 100%;
+    background: rgba(10,5,25,0.4);
+    position: sticky;
+    top: 57px;
+    z-index: 9;
+  }
+  .tab {
+    flex: 1;
+    padding: 12px;
+    background: transparent;
+    border: none;
+    color: #6d28d9;
+    cursor: pointer;
+    font-family: 'Courier New', monospace;
+    font-size: 0.78rem;
+    letter-spacing: 1px;
+    transition: color 0.2s, border-bottom 0.2s;
+    border-bottom: 2px solid transparent;
+  }
+  .tab.active { color: var(--pink); border-bottom: 2px solid var(--pink); }
+
+  /* ---- CONTENIDO ---- */
+  #screen-diario { justify-content: flex-start; padding: 0; }
+
+  .tab-content { display: none; width: 100%; }
+  .tab-content.active { display: block; }
+
+  .content-wrap {
+    max-width: 680px;
+    margin: 0 auto;
+    padding: 32px 20px 80px;
+  }
+
+  /* ---- STATS ---- */
+  .stats-row {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 28px;
+    flex-wrap: wrap;
+  }
+  .stat-card {
+    flex: 1;
+    min-width: 100px;
+    background: rgba(20,10,40,0.7);
+    border: 1px solid #9b5de533;
+    border-radius: 16px;
+    padding: 14px 10px;
+    text-align: center;
+  }
+  .stat-num {
+    font-size: 1.8rem;
+    font-weight: bold;
+    background: linear-gradient(90deg, var(--pink), #c77dff);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+  .stat-label { font-size: 0.65rem; color: #9ca3af; margin-top: 2px; letter-spacing: 1px; }
+
+  /* ---- TIMELINE ---- */
+  .section-title {
+    font-size: 0.72rem;
+    letter-spacing: 4px;
+    color: #f9a8d4;
+    opacity: 0.7;
+    margin-bottom: 24px;
+    text-align: center;
+  }
+
+  .timeline {
+    position: relative;
+    padding-left: 32px;
+  }
+  .timeline::before {
+    content: '';
+    position: absolute;
+    left: 8px; top: 0; bottom: 0;
+    width: 2px;
+    background: linear-gradient(to bottom, var(--pink), var(--purple), transparent);
+    opacity: 0.35;
+  }
+
+  .entry {
+    position: relative;
+    margin-bottom: 24px;
+    animation: entryIn 0.5s ease both;
+  }
+  @keyframes entryIn {
+    from { opacity:0; transform:translateX(-16px); }
+    to   { opacity:1; transform:translateX(0); }
+  }
+  .entry-dot {
+    position: absolute;
+    left: -27px; top: 16px;
+    width: 14px; height: 14px;
+    border-radius: 50%;
+    box-shadow: 0 0 8px currentColor;
+  }
+  .mood-feliz    .entry-dot { background: #34d399; color: #34d399; }
+  .mood-triste   .entry-dot { background: #60a5fa; color: #60a5fa; }
+  .mood-especial .entry-dot { background: var(--pink); color: var(--pink); }
+  .mood-normal   .entry-dot { background: #a78bfa; color: #a78bfa; }
+
+  .entry-card {
+    background: rgba(20,10,40,0.75);
+    border: 1px solid #ffffff11;
+    border-radius: 18px;
+    padding: 16px 18px;
+    transition: box-shadow 0.3s;
+  }
+  .mood-feliz    .entry-card { border-left: 3px solid #34d399; }
+  .mood-triste   .entry-card { border-left: 3px solid #60a5fa; }
+  .mood-especial .entry-card { border-left: 3px solid var(--pink); }
+  .mood-normal   .entry-card { border-left: 3px solid #a78bfa; }
+  .entry-card:hover { box-shadow: 0 0 20px #ff6fd811; }
+
+  .entry-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 10px;
+    gap: 8px;
+  }
+  .entry-meta { display: flex; flex-direction: column; gap: 3px; }
+  .entry-date { font-size: 0.68rem; color: var(--pink); letter-spacing: 1px; }
+  .entry-title { font-size: 0.95rem; color: #e8d5f5; font-weight: bold; }
+  .entry-right { display: flex; flex-direction: column; align-items: flex-end; gap: 4px; }
+  .entry-who {
+    font-size: 0.62rem;
+    color: #a78bfa;
+    background: rgba(109,40,217,0.15);
+    padding: 2px 8px;
+    border-radius: 20px;
+  }
+  .mood-badge {
+    font-size: 0.62rem;
+    padding: 2px 8px;
+    border-radius: 20px;
+  }
+  .mood-feliz    .mood-badge { background: rgba(52,211,153,0.15); color: #34d399; }
+  .mood-triste   .mood-badge { background: rgba(96,165,250,0.15); color: #60a5fa; }
+  .mood-especial .mood-badge { background: rgba(255,111,216,0.15); color: var(--pink); }
+  .mood-normal   .mood-badge { background: rgba(167,139,250,0.15); color: #a78bfa; }
+
+  .entry-text {
+    font-family: Georgia, serif;
+    font-size: 0.88rem;
+    color: #d1d5db;
+    line-height: 1.7;
+    white-space: pre-wrap;
+  }
+  .entry-delete {
+    margin-top: 10px;
+    background: none;
+    border: none;
+    color: #4b5563;
+    font-size: 0.68rem;
+    cursor: pointer;
+    font-family: 'Courier New', monospace;
+    transition: color 0.2s;
+    padding: 0;
+  }
+  .entry-delete:hover { color: #f87171; }
+
+  /* ---- PROMESA TAB ---- */
+  .promesa-wrap {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    max-width: 680px;
+    margin: 0 auto;
+    padding: 32px 20px 80px;
+  }
+
+  .promesa-header {
+    text-align: center;
+    padding: 28px 24px;
+    background: rgba(20,10,40,0.75);
+    border: 1px solid #ff6fd833;
+    border-radius: 22px;
+    box-shadow: 0 0 40px #ff6fd811;
+  }
+  .promesa-header h2 {
+    font-size: 1.3rem;
+    background: linear-gradient(90deg, var(--pink), #c77dff);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    margin-bottom: 6px;
+  }
+  .promesa-header p { color: #9ca3af; font-size: 0.8rem; }
+  .promesa-fecha { color: var(--pink); font-size: 0.78rem; margin-top: 8px; letter-spacing: 1px; }
+
+  .promesa-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 14px;
+  }
+  @media (max-width: 480px) { .promesa-grid { grid-template-columns: 1fr; } }
+
+  .promesa-card {
+    background: rgba(20,10,40,0.75);
+    border: 1px solid #9b5de533;
+    border-radius: 18px;
+    padding: 20px 18px;
+  }
+  .promesa-card h3 {
+    font-size: 0.7rem;
+    letter-spacing: 3px;
+    color: #f9a8d4;
+    opacity: 0.7;
+    margin-bottom: 14px;
+  }
+
+  /* Countdown boda */
+  .boda-card {
+    grid-column: 1 / -1;
+    background: rgba(20,10,40,0.85);
+    border: 1px solid var(--pink);
+    border-radius: 22px;
+    padding: 24px;
+    text-align: center;
+    box-shadow: 0 0 30px #ff6fd811;
+  }
+  .boda-card h3 { font-size: 0.72rem; letter-spacing: 3px; color: #f9a8d4; opacity: 0.7; margin-bottom: 10px; }
+  .boda-years {
+    font-size: 3rem;
+    font-weight: bold;
+    background: linear-gradient(90deg, var(--pink), #c77dff, var(--pink));
+    background-size: 200%;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    animation: shimmer 3s linear infinite;
+    line-height: 1;
+  }
+  @keyframes shimmer { 0%{background-position:0%;} 100%{background-position:200%;} }
+  .boda-sub { color: #9ca3af; font-size: 0.8rem; margin-top: 6px; }
+  .boda-desde { color: #6d28d9; font-size: 0.72rem; margin-top: 4px; letter-spacing: 1px; }
+
+  /* Promesas list */
+  .promesas-list { list-style: none; display: flex; flex-direction: column; gap: 10px; }
+  .promesas-list li {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    font-size: 0.82rem;
+    color: #d8b4fe;
+    font-family: Georgia, serif;
+    line-height: 1.5;
+  }
+  .promesas-list li span { font-size: 1rem; min-width: 20px; }
+
+  /* Sueños list */
+  .suenos-list { list-style: none; display: flex; flex-direction: column; gap: 10px; counter-reset: sueno; }
+  .suenos-list li {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    font-size: 0.85rem;
+    color: #e8d5f5;
+    font-family: Georgia, serif;
+    line-height: 1.5;
+  }
+  .sueno-num {
+    min-width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--pink), var(--purple));
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.65rem;
+    font-weight: bold;
+    flex-shrink: 0;
+    box-shadow: 0 0 8px #ff6fd855;
+  }
+  .sueno-check {
+    margin-left: auto;
+    font-size: 0.7rem;
+    color: #4b5563;
+    cursor: pointer;
+    transition: color 0.2s;
+    padding: 2px 6px;
+    border: 1px solid #ffffff11;
+    border-radius: 20px;
+    background: none;
+    font-family: 'Courier New', monospace;
+    flex-shrink: 0;
+  }
+  .sueno-check.done { color: #34d399; border-color: #34d399; }
+  .sueno-text.done { text-decoration: line-through; opacity: 0.5; }
+
+  /* Declaración */
+  .declaracion-text {
+    font-family: Georgia, serif;
+    font-size: 0.85rem;
+    color: #9ca3af;
+    line-height: 1.8;
+    text-align: center;
+    font-style: italic;
+  }
+
+  /* Firmas */
+  .firmas-row {
+    display: flex;
+    justify-content: space-around;
+    gap: 16px;
+    flex-wrap: wrap;
+  }
+  .firma-item { text-align: center; }
+  .firma-nombre {
+    font-size: 1.1rem;
+    color: var(--pink);
+    font-family: Georgia, serif;
+    font-style: italic;
+    border-bottom: 1px solid #ff6fd855;
+    padding-bottom: 4px;
+    margin-bottom: 6px;
+  }
+  .firma-label { font-size: 0.65rem; color: #6d28d9; letter-spacing: 1px; }
+
+  /* Frase final */
+  .frase-final {
+    text-align: center;
+    font-family: Georgia, serif;
+    font-style: italic;
+    font-size: 0.88rem;
+    color: #c4b5fd;
+    opacity: 0.8;
+    padding: 10px 0;
+  }
+
+  /* ---- EMPTY / LOADING ---- */
+  .empty-state {
+    text-align: center;
+    padding: 50px 20px;
+    color: #6d28d9;
+    font-size: 0.85rem;
+    line-height: 2;
+  }
+  .empty-state .emoji { font-size: 2.5rem; display: block; margin-bottom: 12px; }
+  .loading { text-align: center; padding: 50px 20px; color: #9ca3af; font-size: 0.85rem; }
+
+  /* ---- MODAL ---- */
+  .modal-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.75);
+    backdrop-filter: blur(4px);
+    z-index: 50;
+    justify-content: center;
+    align-items: center;
+    padding: 20px;
+  }
+  .modal-overlay.active { display: flex; }
+
+  .modal {
+    background: #130d28;
+    border: 1px solid #9b5de555;
+    border-radius: 24px;
+    padding: 26px 22px;
+    max-width: 480px;
+    width: 100%;
+    box-shadow: 0 0 50px #ff6fd822;
+    animation: fadeUp 0.4s ease;
+    max-height: 90vh;
+    overflow-y: auto;
+  }
+  .modal h2 {
+    font-size: 1.05rem;
+    background: linear-gradient(90deg, var(--pink), #c77dff);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    margin-bottom: 18px;
+    text-align: center;
+  }
+  .modal-form { display: flex; flex-direction: column; gap: 14px; }
+
+  label { font-size: 0.72rem; color: #c4b5fd; letter-spacing: 1px; display: block; margin-bottom: 4px; }
+
+  .mood-selector { display: flex; gap: 8px; flex-wrap: wrap; }
+  .mood-opt {
+    flex: 1;
+    min-width: 75px;
+    padding: 8px 8px;
+    border-radius: 12px;
+    border: 1px solid #ffffff22;
+    background: transparent;
+    color: #9ca3af;
+    cursor: pointer;
+    font-family: 'Courier New', monospace;
+    font-size: 0.75rem;
+    text-align: center;
+    transition: all 0.2s;
+  }
+  .mood-opt.selected-feliz    { border-color: #34d399; background: rgba(52,211,153,0.15); color: #34d399; }
+  .mood-opt.selected-triste   { border-color: #60a5fa; background: rgba(96,165,250,0.15); color: #60a5fa; }
+  .mood-opt.selected-especial { border-color: var(--pink); background: rgba(255,111,216,0.15); color: var(--pink); }
+  .mood-opt.selected-normal   { border-color: #a78bfa; background: rgba(167,139,250,0.15); color: #a78bfa; }
+
+  textarea.input {
+    resize: vertical;
+    min-height: 110px;
+    letter-spacing: 0;
+    font-size: 0.88rem;
+    font-family: Georgia, serif;
+    line-height: 1.6;
+  }
+
+  .modal-btns { display: flex; gap: 10px; }
+  .btn-cancel {
+    flex: 1;
+    padding: 12px;
+    background: transparent;
+    border: 1px solid #ffffff22;
+    border-radius: 50px;
+    color: #9ca3af;
+    cursor: pointer;
+    font-family: 'Courier New', monospace;
+    font-size: 0.82rem;
+    transition: border-color 0.2s;
+  }
+  .btn-cancel:hover { border-color: #f87171; color: #f87171; }
+  .btn-save { flex: 2; padding: 12px; }
+
+  label { font-size: 0.72rem; }
+</style>
+</head>
+<body>
+
+<div class="stars-layer" id="starsLayer"></div>
+
+<!-- ===== LOGIN ===== -->
+<div class="screen active" id="screen-login">
+  <div class="login-box">
+    <div style="font-size:2.5rem;">🌙</div>
+    <h1>Seba & Mary</h1>
+    <p>Un lugar solo para nosotros ✨</p>
+
+    <div style="width:100%">
+      <label>¿Quién eres?</label>
+      <div class="who-btns">
+        <button class="who-btn" id="btn-seba" onclick="selectWho('seba')">💙 Seba</button>
+        <button class="who-btn" id="btn-mary" onclick="selectWho('mary')">🩷 Mary</button>
+      </div>
+    </div>
+
+    <div style="width:100%">
+      <label>Contraseña</label>
+      <input type="password" class="input input-pass" id="loginPass"
+        maxlength="6" placeholder="••••••"
+        onkeydown="if(event.key==='Enter') login()">
+    </div>
+
+    <p class="error-msg" id="loginError"></p>
+    <button class="btn" onclick="login()">✨ Entrar</button>
+  </div>
+</div>
+
+<!-- ===== DIARIO ===== -->
+<div class="screen" id="screen-diario">
+
+  <div class="header">
+    <span class="header-title">🌙 Seba & Mary</span>
+    <div class="header-right">
+      <span class="header-who" id="headerWho"></span>
+      <button class="btn-small" onclick="abrirModal()">+ Entrada</button>
+      <button class="btn-logout" onclick="logout()">salir</button>
+    </div>
+  </div>
+
+  <div class="tabs">
+    <button class="tab active" onclick="showTab('tab-diario')">📖 Diario</button>
+    <button class="tab" onclick="showTab('tab-promesa')">💍 Promesa</button>
+  </div>
+
+  <!-- TAB: DIARIO -->
+  <div class="tab-content active" id="tab-diario">
+    <div class="content-wrap">
+
+      <div class="stats-row">
+        <div class="stat-card">
+          <div class="stat-num" id="statTotal">0</div>
+          <div class="stat-label">entradas</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-num" id="statDias">0</div>
+          <div class="stat-label">días juntos</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-num" id="statEspeciales">0</div>
+          <div class="stat-label">especiales</div>
+        </div>
+      </div>
+
+      <p class="section-title">✦ nuestra historia ✦</p>
+      <div class="timeline" id="timeline">
+        <div class="loading">Cargando... 🌸</div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- TAB: PROMESA -->
+  <div class="tab-content" id="tab-promesa">
+    <div class="promesa-wrap">
+
+      <div class="promesa-header">
+        <h2>💍 Acuerdo de Promesa Futura</h2>
+        <p>María Troncoso & Sebastián Abarca</p>
+        <p class="promesa-fecha">Firmado el 11 de junio de 2026</p>
+      </div>
+
+      <!-- Countdown boda -->
+      <div class="promesa-card boda-card">
+        <h3>✦ NUESTRA BODA ✦</h3>
+        <div class="boda-years" id="bodaCountdown">--</div>
+        <p class="boda-sub" id="bodaSub">años para casarnos</p>
+        <p class="boda-desde" id="bodaDetalle">meta: antes del 2033 💕</p>
+      </div>
+
+      <div class="promesa-grid">
+
+        <!-- Declaración -->
+        <div class="promesa-card" style="grid-column: 1 / -1;">
+          <h3>✦ NUESTRA DECLARACIÓN ✦</h3>
+          <p class="declaracion-text">
+            "Sabemos que el futuro no puede prometerse ni garantizarse, pero sí puede soñarse,
+            planearse y construirse día a día. Hoy expresamos nuestra intención de seguir
+            creciendo como pareja, fortaleciendo nuestra relación mediante el respeto,
+            la confianza, la comunicación, la compañía y el amor."
+          </p>
+        </div>
+
+        <!-- Nuestras promesas -->
+        <div class="promesa-card">
+          <h3>✦ NUESTRAS PROMESAS ✦</h3>
+          <ul class="promesas-list">
+            <li><span>💛</span> Elegirnos incluso en los días difíciles.</li>
+            <li><span>💬</span> Hablar con honestidad y escucharnos con respeto.</li>
+            <li><span>🌱</span> Apoyar nuestros sueños individuales y compartidos.</li>
+            <li><span>🎉</span> Celebrar nuestros logros como propios.</li>
+            <li><span>📖</span> Aprender juntos de nuestros errores.</li>
+            <li><span>📷</span> Crear recuerdos que valga la pena guardar.</li>
+            <li><span>🌙</span> Nunca olvidar por qué decidimos caminar juntos.</li>
+          </ul>
+        </div>
+
+        <!-- Sueños antes de casarse -->
+        <div class="promesa-card">
+          <h3>✦ SUEÑOS ANTES DE CASARNOS ✦</h3>
+          <ul class="suenos-list" id="suenosList">
+            <li>
+              <span class="sueno-num">1</span>
+              <span class="sueno-text" id="s1">Viajar juntos ✈️</span>
+              <button class="sueno-check" id="c1" onclick="toggleSueno(1)">✓</button>
+            </li>
+            <li>
+              <span class="sueno-num">2</span>
+              <span class="sueno-text" id="s2">Tener buenos trabajos 💼</span>
+              <button class="sueno-check" id="c2" onclick="toggleSueno(2)">✓</button>
+            </li>
+            <li>
+              <span class="sueno-num">3</span>
+              <span class="sueno-text" id="s3">Tener un depa bonito en Santiago 🏠</span>
+              <button class="sueno-check" id="c3" onclick="toggleSueno(3)">✓</button>
+            </li>
+            <li>
+              <span class="sueno-num">4</span>
+              <span class="sueno-text" id="s4">Tener un glowup para salir guapos en las fotos xD 📸</span>
+              <button class="sueno-check" id="c4" onclick="toggleSueno(4)">✓</button>
+            </li>
+            <li>
+              <span class="sueno-num">5</span>
+              <span class="sueno-text" id="s5">Salir en muchas citas bonitas 🌹</span>
+              <button class="sueno-check" id="c5" onclick="toggleSueno(5)">✓</button>
+            </li>
+          </ul>
+        </div>
+
+        <!-- Firmas -->
+        <div class="promesa-card" style="grid-column: 1 / -1;">
+          <h3>✦ FIRMAS ✦</h3>
+          <div class="firmas-row">
+            <div class="firma-item">
+              <div class="firma-nombre">S. Abarca</div>
+              <div class="firma-label">Sebastián Alejandro Abarca</div>
+            </div>
+            <div style="font-size:2rem;">💞</div>
+            <div class="firma-item">
+              <div class="firma-nombre">M. Troncoso</div>
+              <div class="firma-label">María Troncoso</div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      <p class="frase-final">"El futuro no está escrito, pero hoy elegimos soñarlo juntos."</p>
+
+    </div>
+  </div>
+
+</div>
+
+<!-- ===== MODAL ===== -->
+<div class="modal-overlay" id="modalOverlay">
+  <div class="modal">
+    <h2>💌 Nueva entrada</h2>
+    <div class="modal-form">
+      <div>
+        <label>Título</label>
+        <input type="text" class="input" id="entradaTitulo" placeholder="¿Cómo llamarías este momento?">
+      </div>
+      <div>
+        <label>Fecha</label>
+        <input type="date" class="input" id="entradaFecha">
+      </div>
+      <div>
+        <label>¿Cómo fue?</label>
+        <div class="mood-selector">
+          <button class="mood-opt" data-mood="feliz"    onclick="selectMood('feliz')">😊 Feliz</button>
+          <button class="mood-opt" data-mood="especial" onclick="selectMood('especial')">💖 Especial</button>
+          <button class="mood-opt" data-mood="triste"   onclick="selectMood('triste')">💙 Triste</button>
+          <button class="mood-opt" data-mood="normal"   onclick="selectMood('normal')">🌙 Normal</button>
+        </div>
+      </div>
+      <div>
+        <label>Cuéntame qué pasó</label>
+        <textarea class="input" id="entradaTexto" placeholder="Escribe lo que quieras recordar..."></textarea>
+      </div>
+      <div class="modal-btns">
+        <button class="btn-cancel" onclick="cerrarModal()">Cancelar</button>
+        <button class="btn btn-save" id="btnGuardar" onclick="guardarEntrada()">💾 Guardar</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+  import { getFirestore, collection, addDoc, getDocs, deleteDoc, setDoc, getDoc, doc, orderBy, query }
+    from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyCHzpTRew6sZfyn7GdNZdL1BcOy2pDmpHk",
+    authDomain: "diario-d8722.firebaseapp.com",
+    projectId: "diario-d8722",
+    storageBucket: "diario-d8722.firebasestorage.app",
+    messagingSenderId: "737685183755",
+    appId: "1:737685183755:web:82a90f3dd8dcd6938c160e",
+    measurementId: "G-YB2VJ5GZQ2"
+  };
+
+  const app = initializeApp(firebaseConfig);
+  const db  = getFirestore(app);
+
+  const PASSWORD    = "260126";
+  const ANIVERSARIO = new Date("2026-01-26T00:00:00-04:00");
+  const BODA_TARGET = new Date("2033-01-26T00:00:00-04:00");
+
+  let currentUser  = null;
+  let selectedMood = null;
+
+  // ---- ESTRELLAS ----
+  const sl = document.getElementById('starsLayer');
+  for (let i = 0; i < 100; i++) {
+    const s = document.createElement('div');
+    s.classList.add('star');
+    const sz = Math.random()*2+0.5;
+    s.style.cssText = `width:${sz}px;height:${sz}px;top:${Math.random()*100}%;left:${Math.random()*100}%;animation-duration:${Math.random()*4+2}s;animation-delay:${Math.random()*6}s;`;
+    sl.appendChild(s);
+  }
+
+  // ---- LOGIN ----
+  window.selectWho = function(who) {
+    currentUser = who;
+    document.getElementById('btn-seba').classList.toggle('selected', who === 'seba');
+    document.getElementById('btn-mary').classList.toggle('selected', who === 'mary');
+  };
+
+  window.login = function() {
+    const pass  = document.getElementById('loginPass').value;
+    const errEl = document.getElementById('loginError');
+    const inp   = document.getElementById('loginPass');
+    if (!currentUser) {
+      errEl.textContent = '¿Quién eres? Selecciona arriba 💕';
+      errEl.style.display = 'block'; return;
+    }
+    if (pass !== PASSWORD) {
+      inp.classList.add('error');
+      errEl.textContent = '💔 Contraseña incorrecta';
+      errEl.style.display = 'block';
+      inp.value = '';
+      setTimeout(() => inp.classList.remove('error'), 500); return;
+    }
+    errEl.style.display = 'none';
+    document.getElementById('headerWho').textContent = currentUser === 'seba' ? '💙 Seba' : '🩷 Mary';
+    showScreen('screen-diario');
+    cargarEntradas();
+    actualizarDias();
+    actualizarBoda();
+    cargarSuenos();
+  };
+
+  window.logout = function() {
+    currentUser = null;
+    document.getElementById('loginPass').value = '';
+    document.getElementById('btn-seba').classList.remove('selected');
+    document.getElementById('btn-mary').classList.remove('selected');
+    showScreen('screen-login');
+  };
+
+  // ---- DÍAS / BODA ----
+  function actualizarDias() {
+    const days = Math.max(0, Math.floor((new Date() - ANIVERSARIO) / 86400000));
+    document.getElementById('statDias').textContent = days;
+  }
+
+  function actualizarBoda() {
+    const diff  = BODA_TARGET - new Date();
+    const years = Math.max(0, (diff / (365.25 * 24 * 3600 * 1000)).toFixed(1));
+    document.getElementById('bodaCountdown').textContent = years;
+    document.getElementById('bodaSub').textContent = years <= 0 ? '¡Ya se casaron! 🎊' : 'años para casarnos';
+  }
+
+  // ---- TABS ----
+  window.showTab = function(id) {
+    document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+    document.getElementById(id).classList.add('active');
+    event.target.classList.add('active');
+  };
+
+  // ---- CARGAR ENTRADAS ----
+  async function cargarEntradas() {
+    const tl = document.getElementById('timeline');
+    tl.innerHTML = '<div class="loading">Cargando... 🌸</div>';
+    try {
+      const q    = query(collection(db, 'entradas'), orderBy('fecha', 'desc'));
+      const snap = await getDocs(q);
+      const arr  = [];
+      snap.forEach(d => arr.push({ id: d.id, ...d.data() }));
+      renderEntradas(arr);
+      document.getElementById('statTotal').textContent = arr.length;
+      document.getElementById('statEspeciales').textContent = arr.filter(e => e.mood === 'especial').length;
+    } catch(e) {
+      tl.innerHTML = '<div class="loading">Error cargando 😔</div>';
+      console.error(e);
+    }
+  }
+
+  function renderEntradas(arr) {
+    const tl = document.getElementById('timeline');
+    if (!arr.length) {
+      tl.innerHTML = `<div class="empty-state"><span class="emoji">🌸</span>Aún no hay entradas.<br>Sean el primer momento de su historia.</div>`;
+      return;
+    }
+    const moodLabel = { feliz:'😊 Feliz', especial:'💖 Especial', triste:'💙 Triste', normal:'🌙 Normal' };
+    tl.innerHTML = arr.map(e => `
+      <div class="entry mood-${e.mood}">
+        <div class="entry-dot"></div>
+        <div class="entry-card">
+          <div class="entry-header">
+            <div class="entry-meta">
+              <span class="entry-date">${formatDate(e.fecha)}</span>
+              <span class="entry-title">${e.titulo}</span>
+            </div>
+            <div class="entry-right">
+              <span class="entry-who">${e.quien === 'seba' ? '💙 Seba' : '🩷 Mary'}</span>
+              <span class="mood-badge">${moodLabel[e.mood]||e.mood}</span>
+            </div>
+          </div>
+          <p class="entry-text">${e.texto}</p>
+          ${currentUser === e.quien ? `<button class="entry-delete" onclick="eliminarEntrada('${e.id}')">🗑 eliminar</button>` : ''}
+        </div>
+      </div>`).join('');
+  }
+
+  function formatDate(str) {
+    if (!str) return '';
+    const [y,m,d] = str.split('-');
+    const meses = ['ene','feb','mar','abr','may','jun','jul','ago','sep','oct','nov','dic'];
+    return `${parseInt(d)} ${meses[parseInt(m)-1]} ${y}`;
+  }
+
+  // ---- MODAL ----
+  window.abrirModal = function() {
+    document.getElementById('entradaFecha').value = new Date().toISOString().split('T')[0];
+    document.getElementById('entradaTitulo').value = '';
+    document.getElementById('entradaTexto').value = '';
+    selectedMood = null;
+    document.querySelectorAll('.mood-opt').forEach(b => b.className = 'mood-opt');
+    document.getElementById('modalOverlay').classList.add('active');
+  };
+  window.cerrarModal = function() {
+    document.getElementById('modalOverlay').classList.remove('active');
+  };
+  window.selectMood = function(mood) {
+    selectedMood = mood;
+    document.querySelectorAll('.mood-opt').forEach(b => {
+      b.className = 'mood-opt';
+      if (b.dataset.mood === mood) b.classList.add(`selected-${mood}`);
+    });
+  };
+
+  // ---- GUARDAR ENTRADA ----
+  window.guardarEntrada = async function() {
+    const titulo = document.getElementById('entradaTitulo').value.trim();
+    const fecha  = document.getElementById('entradaFecha').value;
+    const texto  = document.getElementById('entradaTexto').value.trim();
+    if (!titulo || !fecha || !texto || !selectedMood) { alert('Completa todos los campos 💕'); return; }
+    const btn = document.getElementById('btnGuardar');
+    btn.disabled = true; btn.textContent = 'Guardando...';
+    try {
+      await addDoc(collection(db, 'entradas'), {
+        titulo, fecha, texto, mood: selectedMood, quien: currentUser,
+        creadoEn: new Date().toISOString()
+      });
+      cerrarModal();
+      cargarEntradas();
+    } catch(e) { alert('Error guardando 😔'); console.error(e); }
+    finally { btn.disabled = false; btn.textContent = '💾 Guardar'; }
+  };
+
+  // ---- ELIMINAR ----
+  window.eliminarEntrada = async function(id) {
+    if (!confirm('¿Eliminar esta entrada? 💔')) return;
+    try { await deleteDoc(doc(db, 'entradas', id)); cargarEntradas(); }
+    catch(e) { alert('Error eliminando 😔'); }
+  };
+
+  // ---- SUEÑOS (se guardan en Firebase también) ----
+  async function cargarSuenos() {
+    try {
+      const snap = await getDoc(doc(db, 'config', 'suenos'));
+      if (snap.exists()) {
+        const data = snap.data();
+        for (let i = 1; i <= 5; i++) {
+          if (data[`s${i}`]) marcarSueno(i, true);
+        }
+      }
+    } catch(e) { console.error(e); }
+  }
+
+  window.toggleSueno = async function(n) {
+    const btn = document.getElementById(`c${n}`);
+    const isDone = btn.classList.contains('done');
+    marcarSueno(n, !isDone);
+    try {
+      const ref  = doc(db, 'config', 'suenos');
+      const snap = await getDoc(ref);
+      const data = snap.exists() ? snap.data() : {};
+      data[`s${n}`] = !isDone;
+      await setDoc(ref, data);
+    } catch(e) { console.error(e); }
+  };
+
+  function marcarSueno(n, done) {
+    const btn  = document.getElementById(`c${n}`);
+    const text = document.getElementById(`s${n}`);
+    btn.classList.toggle('done', done);
+    text.classList.toggle('done', done);
+    btn.textContent = done ? '✓' : '✓';
+  }
+
+  // ---- HELPERS ----
+  function showScreen(id) {
+    document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+    document.getElementById(id).classList.add('active');
+    window.scrollTo(0,0);
+  }
+
+  document.getElementById('modalOverlay').addEventListener('click', function(e) {
+    if (e.target === this) cerrarModal();
+  });
+</script>
+</body>
+</html>
